@@ -2,6 +2,10 @@ package aurora_food_pantry;
 
 import java.time.LocalDate;
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -12,6 +16,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -33,7 +38,8 @@ import javafx.stage.Stage;
 
 public class Aurora_Food_Pantry extends Application {
 	Scene scene00, scene01, scene02;
-
+	ObservableList<String> entries = FXCollections.observableArrayList();    
+    ListView listVolunteers = new ListView();
 	@Override
 	public void start(Stage primaryStage) {
 		primaryStage.setTitle("Aurora Food Pantry");
@@ -92,20 +98,21 @@ public class Aurora_Food_Pantry extends Application {
 		HBox hBoxSceneOne = new HBox(10);
 		hBoxSceneOne.setPadding(new Insets(10, 10, 10, 10));
 		
-		GridPane gridVolunteers = new GridPane();
-		gridVolunteers.setAlignment(Pos.CENTER);
-		gridVolunteers.setHgap(10);
-		gridVolunteers.setVgap(10);
-		gridVolunteers.setStyle("-fx-border-color:green; -fx-background-color: #EEE;");
-		bPaneHome.setCenter(gridVolunteers);
-		
 		Label lblSceneOneTitle = new Label("Aurora Food Pantry");
 		lblSceneOneTitle.setTextFill(Color.web("#e2620d"));
 		Label lblWelcome = new Label("Welcome, username");
 		lblWelcome.setFont(Font.font("Courier, New",14));
 		lblSceneOneTitle.setFont(Font.font("Courier, New", FontWeight.BOLD,25));
 		Button btnAddNewVolunteer = new Button("Add a new volunteer");
-		TextField tfSearch = new TextField("Search:");
+		TextField tfSearch = new TextField();
+		tfSearch.setPromptText("Search");
+		tfSearch.textProperty().addListener(
+	            new ChangeListener() {
+	                public void changed(ObservableValue observable, 
+	                                    Object oldVal, Object newVal) {
+	                    handleSearchByKey2((String)oldVal, (String)newVal);
+	                }
+	            });
 		ComboBox<String> cboSearch = new ComboBox<>();
 		cboSearch.getItems().addAll("Hours by company", "User", "Court ordered", "Start date", "End date");
 		cboSearch.getSelectionModel().selectFirst();
@@ -117,21 +124,29 @@ public class Aurora_Food_Pantry extends Application {
 		vBoxSceneOne.getChildren().addAll(hBoxSceneOneRow1, hBoxSceneOne);
 		bPaneHome.setTop(vBoxSceneOne);
 		
-		Text txtVolun = new Text("Volunteers");
+		/*Text txtVolun = new Text("Volunteers");
 		Text txtHours = new Text("Hours");
 		Text txtCourt = new Text("Court ordered");
 		Text txtStart = new Text("Start date");
-		Text txtEnd = new Text("End date");
-		gridVolunteers.addRow(0, txtVolun, txtHours, txtCourt, txtStart, txtEnd);
-		gridVolunteers.addRow(1, new Text("Sample name 1"), new Text("1"), new Text("No"), new Text("1/1/2000"), new Text("1/1/2010"));
-		gridVolunteers.addRow(2, new Text("Sample name 2"), new Text("2"), new Text("No"), new Text("1/1/2000"), new Text("1/1/2010"));
-		gridVolunteers.addRow(3, new Text("Sample name 3"), new Text("3"), new Text("Yes"), new Text("1/1/2000"), new Text("1/1/2010"));
-		gridVolunteers.addRow(4, new Text("Sample name 4"), new Text("4"), new Text("No"), new Text("1/1/2000"), new Text("1/1/2010"));
-		gridVolunteers.addRow(5, new Text("Sample name 5"), new Text("5"), new Text("Yes"), new Text("1/1/2000"), new Text("1/1/2010"));
-		gridVolunteers.addRow(6, new Text("Sample name 6"), new Text("6"), new Text("Yes"), new Text("1/1/2000"), new Text("1/1/2010"));
-		gridVolunteers.addRow(7, new Text("Sample name 7"), new Text("7"), new Text("No"), new Text("1/1/2000"), new Text("1/1/2010"));
-		gridVolunteers.addRow(8, new Text("Sample name 8"), new Text("8"), new Text("Yes"), new Text("1/1/2000"), new Text("1/1/2010"));
+		Text txtEnd = new Text("End date");*/
 		
+		listVolunteers.setMaxHeight(180);
+        // Populate the list's entries
+		entries.add("Sample name 1\t1\tNo\t1/1/2000\t1/1/2010");
+        entries.add("Sample name 2\t2\tNo\t1/1/2001\t1/1/2011");
+        entries.add("Sample name 3\t3\tNo\t1/1/2002\t1/1/2012");
+        entries.add("Sample name 4\t4\tNo\t1/1/2003\t1/1/2013");
+        entries.add("Sample name 5\t5\tYes\t1/1/2004\t1/1/2014");
+        entries.add("Sample name 6\t6\tYes\t1/1/2005\t1/1/2015");
+        entries.add("Sample name 7\t7\tYes\t1/1/1998\t1/1/2016");
+        entries.add("Sample name 8\t8\tYes\t1/1/1999\t1/1/2017");
+        
+        for ( int i = 0; i < 100; i++ ) {
+            entries.add("Item " + i);
+        }
+        listVolunteers.setItems( entries );
+        bPaneHome.setCenter(listVolunteers);
+        
 		scene01 = new Scene(bPaneHome);
 		
 		/*Scene 2 - the Volunteer Registration*/
@@ -200,6 +215,8 @@ public class Aurora_Food_Pantry extends Application {
 		
 		primaryStage.show();
 		
+		
+		
 		btnLogin.setOnAction(new EventHandler<ActionEvent>(){
 			@Override
 			public void handle(ActionEvent e){
@@ -216,6 +233,63 @@ public class Aurora_Food_Pantry extends Application {
 			}
 		});
 	}
+	
+	public void handleSearchByKey(String oldVal, String newVal) {
+        // If the number of characters in the text box is less than last time
+        // it must be because the user pressed delete
+        if ( oldVal != null && (newVal.length() < oldVal.length()) ) {
+            // Restore the lists original set of entries 
+            // and start from the beginning
+            listVolunteers.setItems( entries );
+        }
+         
+        // Change to upper case so that case is not an issue
+        newVal = newVal.toUpperCase();
+ 
+        // Filter out the entries that don't contain the entered text
+        ObservableList<String> subentries = FXCollections.observableArrayList();
+        for ( Object entry: listVolunteers.getItems() ) {
+            String entryText = (String)entry;
+            if ( entryText.toUpperCase().contains(newVal) ) {
+                subentries.add(entryText);
+            }
+        }
+        listVolunteers.setItems(subentries);
+    }
+ 
+    public void handleSearchByKey2(String oldVal, String newVal) {
+        // If the number of characters in the text box is less than last time
+        // it must be because the user pressed delete
+        if ( oldVal != null && (newVal.length() < oldVal.length()) ) {
+            // Restore the lists original set of entries 
+            // and start from the beginning
+            listVolunteers.setItems( entries );
+        }
+         
+        // Break out all of the parts of the search text 
+        // by splitting on white space
+        String[] parts = newVal.toUpperCase().split(" ");
+ 
+        // Filter out the entries that don't contain the entered text
+        ObservableList<String> subentries = FXCollections.observableArrayList();
+        for ( Object entry: listVolunteers.getItems() ) {
+            boolean match = true;
+            String entryText = (String)entry;
+            for ( String part: parts ) {
+                // The entry needs to contain all portions of the
+                // search string *but* in any order
+                if ( ! entryText.toUpperCase().contains(part) ) {
+                    match = false;
+                    break;
+                }
+            }
+ 
+            if ( match ) {
+                subentries.add(entryText);
+            }
+        }
+        listVolunteers.setItems(subentries);
+    }
 
 	public static void main(String[] args) {
 		launch(args);
