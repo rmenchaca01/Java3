@@ -114,7 +114,7 @@ public class Aurora_Food_Pantry extends Application {
 	                }
 	            });
 		ComboBox<String> cboSearch = new ComboBox<>();
-		cboSearch.getItems().addAll("Hours by company", "User", "Court ordered", "Start date", "End date");
+		cboSearch.getItems().addAll("Company", "User", "Court ordered", "Start date", "End date");
 		cboSearch.getSelectionModel().selectFirst();
 		Button btnLogout = new Button("Logout");
 		btnLogout.setOnAction(e -> primaryStage.setScene(scene00));
@@ -132,14 +132,14 @@ public class Aurora_Food_Pantry extends Application {
 		
 		listVolunteers.setMaxHeight(180);
         // Populate the list's entries
-		entries.add("Sample name 1\t1\tNo\t1/1/2000\t1/1/2010");
-        entries.add("Sample name 2\t2\tNo\t1/1/2001\t1/1/2011");
-        entries.add("Sample name 3\t3\tNo\t1/1/2002\t1/1/2012");
-        entries.add("Sample name 4\t4\tNo\t1/1/2003\t1/1/2013");
-        entries.add("Sample name 5\t5\tYes\t1/1/2004\t1/1/2014");
-        entries.add("Sample name 6\t6\tYes\t1/1/2005\t1/1/2015");
-        entries.add("Sample name 7\t7\tYes\t1/1/1998\t1/1/2016");
-        entries.add("Sample name 8\t8\tYes\t1/1/1999\t1/1/2017");
+		entries.add("Company 1\tSample name 1\t1\tNo\t1/1/2000\t1/1/2010");
+        entries.add("Company 2\tSample name 2\t2\tNo\t1/1/2001\t1/1/2011");
+        entries.add("Company 3\tSample name 3\t3\tNo\t1/1/2002\t1/1/2012");
+        entries.add("Company 4\tSample name 4\t4\tNo\t1/1/2003\t1/1/2013");
+        entries.add("Company 5\tSample name 5\t5\tYes\t1/1/2004\t1/1/2014");
+        entries.add("Company 6\tSample name 6\t6\tYes\t1/1/2005\t1/1/2015");
+        entries.add("Company 7\tSample name 7\t7\tYes\t1/1/1998\t1/1/2016");
+        entries.add("Company 8\tSample name 8\t8\tYes\t1/1/1999\t1/1/2017");
         
         for ( int i = 0; i < 100; i++ ) {
             entries.add("Item " + i);
