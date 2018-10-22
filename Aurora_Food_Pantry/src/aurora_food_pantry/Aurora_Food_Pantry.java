@@ -123,8 +123,8 @@ public class Aurora_Food_Pantry extends Application {
 		hBoxSceneOne.getChildren().addAll(btnAddNewVolunteer, tfSearch, cboSearch);
 		vBoxSceneOne.getChildren().addAll(hBoxSceneOneRow1, hBoxSceneOne);
 		bPaneHome.setTop(vBoxSceneOne);
-		
-		/*Text txtVolun = new Text("Volunteers");
+		/*Text txtCompany = new Text("Company");
+		Text txtVolun = new Text("Volunteers");
 		Text txtHours = new Text("Hours");
 		Text txtCourt = new Text("Court ordered");
 		Text txtStart = new Text("Start date");
