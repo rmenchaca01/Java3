@@ -3,6 +3,7 @@ package aurora_food_pantry;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 
 import javafx.application.Application;
@@ -233,6 +234,11 @@ public class Aurora_Food_Pantry extends Application {
 			}
 		});
 		
+		cboSearch.setOnAction((event) -> {
+		    if (cboSearch.getValue().equals("Start date"))
+		    	Collections.sort(entries, new SortByStartDate());
+		});
+		
 		btnLogin.setOnAction(new EventHandler<ActionEvent>(){
 			@Override
 			public void handle(ActionEvent e){
@@ -307,13 +313,13 @@ public class Aurora_Food_Pantry extends Application {
         listVolunteers.setItems(subentries);
     }
     
-    /*class SortByStartDate implements Comparator<Volunteer> { //Collections.sort(entries, new SortByStartDate()); 
+    class SortByStartDate implements Comparator<Volunteer> {
     	public int compare(Volunteer v1, Volunteer v2) {
-    		if (v1.getStartDate() < v2.getStartDate()) return -1;
-    		else if (v1.getStartDate() > v2.getStartDate()) return 1;
+    		if (v1.getStartDate().compareTo(v2.getStartDate()) > 0) return 1;
+    		else if (v1.getStartDate().compareTo(v2.getStartDate()) < 0) return -1;
     		else return 0;
     	}
-    }*/
+    }
 
 	public static void main(String[] args) {
 		launch(args);
