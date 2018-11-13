@@ -38,7 +38,7 @@ import javafx.stage.Stage;
 * 
 * @lastModifiedBy	Rafael
 * @modified		11/13/2018 
-* @version		0.2
+* @version		0.3
 */
 
 public class Aurora_Food_Pantry extends Application {
