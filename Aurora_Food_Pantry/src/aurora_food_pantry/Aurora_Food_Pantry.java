@@ -1,6 +1,10 @@
 package aurora_food_pantry;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Comparator;
+
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -32,13 +36,14 @@ import javafx.stage.Stage;
 * Aurora Food Pantry by Half Empty
 * 
 * @lastModifiedBy	Rafael
-* @modified		9/30/2018 
-* @version		0.1
+* @modified		11/13/2018 
+* @version		0.2
 */
 
 public class Aurora_Food_Pantry extends Application {
 	Scene scene00, scene01, scene02;
-	ObservableList<String> entries = FXCollections.observableArrayList();    
+	//ObservableList<String> entries = FXCollections.observableArrayList();    
+	ObservableList<Volunteer> entries = FXCollections.observableArrayList();
     ListView listVolunteers = new ListView();
 	@Override
 	public void start(Stage primaryStage) {
@@ -96,6 +101,7 @@ public class Aurora_Food_Pantry extends Application {
 		hBoxSceneOneRow1.setPadding(new Insets(10, 10, 10, 10));
 		
 		HBox hBoxSceneOne = new HBox(10);
+		hBoxSceneOne.setAlignment(Pos.CENTER);
 		hBoxSceneOne.setPadding(new Insets(10, 10, 10, 10));
 		
 		Label lblSceneOneTitle = new Label("Aurora Food Pantry");
@@ -129,22 +135,7 @@ public class Aurora_Food_Pantry extends Application {
 		Text txtCourt = new Text("Court ordered");
 		Text txtStart = new Text("Start date");
 		Text txtEnd = new Text("End date");*/
-		
-		listVolunteers.setMaxHeight(180);
-        // Populate the list's entries
-		entries.add("Company 1\tSample name 1\t1\tNo\t1/1/2000\t1/1/2010");
-        entries.add("Company 2\tSample name 2\t2\tNo\t1/1/2001\t1/1/2011");
-        entries.add("Company 3\tSample name 3\t3\tNo\t1/1/2002\t1/1/2012");
-        entries.add("Company 4\tSample name 4\t4\tNo\t1/1/2003\t1/1/2013");
-        entries.add("Company 5\tSample name 5\t5\tYes\t1/1/2004\t1/1/2014");
-        entries.add("Company 6\tSample name 6\t6\tYes\t1/1/2005\t1/1/2015");
-        entries.add("Company 7\tSample name 7\t7\tYes\t1/1/1998\t1/1/2016");
-        entries.add("Company 8\tSample name 8\t8\tYes\t1/1/1999\t1/1/2017");
-        
-        for ( int i = 0; i < 100; i++ ) {
-            entries.add("Item " + i);
-        }
-        listVolunteers.setItems( entries );
+
         bPaneHome.setCenter(listVolunteers);
         
 		scene01 = new Scene(bPaneHome);
@@ -187,7 +178,7 @@ public class Aurora_Food_Pantry extends Application {
 		Button btnCancelVolunteer = new Button("Cancel");
 		btnCancelVolunteer.setOnAction(e -> primaryStage.setScene(scene01));
 		Button btnSaveVolunteer = new Button("Save");
-		btnSaveVolunteer.setOnAction(e -> primaryStage.setScene(scene01));
+		//btnSaveVolunteer.setOnAction(e -> primaryStage.setScene(scene01));
 		
 		gridVolunteerForm.addRow(1, new Label("First Name"), new Label("Last Name"));
 		gridVolunteerForm.addRow(2, firstName, lastName);
@@ -215,7 +206,32 @@ public class Aurora_Food_Pantry extends Application {
 		
 		primaryStage.show();
 		
-		
+		btnSaveVolunteer.setOnAction(new EventHandler<ActionEvent>(){
+			@Override
+			public void handle(ActionEvent e){
+					Volunteer v1 = new Volunteer();
+					v1.setFirstName(firstName.getText());
+					v1.setLastName(lastName.getText());
+					v1.setDob(dob.getValue());
+					v1.setAffiliation(affiliation.getText());
+					v1.setRetired(retired.isSelected());
+					v1.setPhone(phone.getText());
+					v1.setEmail(email.getText());
+					v1.setStreet(street.getText());
+					v1.setCity(city.getText());
+					v1.setState(state.getText());
+					v1.setEmergencyName(emergencyName.getText());
+					v1.setEmergencyPhone(emergencyPhone.getText());
+					v1.setZip(zip.getText());
+					DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+					LocalDate localDate = LocalDate.now();
+					v1.setStartDate(localDate);
+					
+					entries.add(v1);
+					listVolunteers.setItems(entries);
+					primaryStage.setScene(scene01);
+			}
+		});
 		
 		btnLogin.setOnAction(new EventHandler<ActionEvent>(){
 			@Override
@@ -290,6 +306,14 @@ public class Aurora_Food_Pantry extends Application {
         }
         listVolunteers.setItems(subentries);
     }
+    
+    /*class SortByStartDate implements Comparator<Volunteer> { //Collections.sort(entries, new SortByStartDate()); 
+    	public int compare(Volunteer v1, Volunteer v2) {
+    		if (v1.getStartDate() < v2.getStartDate()) return -1;
+    		else if (v1.getStartDate() > v2.getStartDate()) return 1;
+    		else return 0;
+    	}
+    }*/
 
 	public static void main(String[] args) {
 		launch(args);
