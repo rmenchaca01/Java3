@@ -10,19 +10,19 @@ import javafx.scene.control.TextField;
 public class Volunteer {
 	//Instance variables
 	String firstName, lastName;
-	LocalDate dob;
+	String dob;
 	String affiliation;
 	boolean retired;
 	String phone, email, street, city, state,
 	emergencyName, emergencyPhone;
 	String zip;
-	LocalDate startDate;
-	Date endDate;
+	String startDate;
+	String endDate;
 	
 	//Constructor
-	public Volunteer(String firstName, String lastName, LocalDate dob, String affiliation, boolean retired, String phone,
+	public Volunteer(String firstName, String lastName, String dob, String affiliation, boolean retired, String phone,
 			String email, String street, String city, String state, String emergencyName, String emergencyPhone,
-			String zip, LocalDate startDate, Date endDate) {
+			String zip, String startDate, String endDate) {
 		super();
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -41,11 +41,6 @@ public class Volunteer {
 		this.endDate = endDate;
 	}
 
-	/*public Volunteer(String text, String text2, LocalDate value, String text3, String text4, String text5, String text6,
-			String text7, String text8, String text9, String text10, String text11, String text12, String string,
-			String string2) {
-		// TODO Auto-generated constructor stub
-	}*/
 
 	public Volunteer() {
 		// TODO Auto-generated constructor stub
@@ -68,12 +63,12 @@ public class Volunteer {
 		this.lastName = lastName;
 	}
 
-	public LocalDate getDob() {
+	public String getDob() {
 		return dob;
 	}
 
-	public void setDob(LocalDate localDate) {
-		this.dob = localDate;
+	public void setDob(String stringDOB) {
+		this.dob = stringDOB;
 	}
 
 	public String getAffiliation() {
@@ -156,20 +151,20 @@ public class Volunteer {
 		this.zip = string;
 	}
 
-	public LocalDate getStartDate() {
+	public String getStartDate() {
 		return startDate;
 	}
 
-	public void setStartDate(LocalDate localDate) {
-		this.startDate = localDate;
+	public void setStartDate(String stringLocalDate) {
+		this.startDate = stringLocalDate;
 	}
 
-	public Date getEndDate() {
+	public String getEndDate() {
 		return endDate;
 	}
 
-	public void setEndDate(Date endDate) {
-		this.endDate = endDate;
+	public void setEndDate(String string) {
+		this.endDate = string;
 	}
 
 	//ToString

@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
@@ -37,8 +38,8 @@ import javafx.stage.Stage;
 * Aurora Food Pantry by Half Empty
 * 
 * @lastModifiedBy	Rafael
-* @modified		11/13/2018 
-* @version		0.3
+* @modified		11/14/2018 
+* @version		0.4
 */
 
 public class Aurora_Food_Pantry extends Application {
@@ -213,7 +214,9 @@ public class Aurora_Food_Pantry extends Application {
 					Volunteer v1 = new Volunteer();
 					v1.setFirstName(firstName.getText());
 					v1.setLastName(lastName.getText());
-					v1.setDob(dob.getValue());
+					DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+					String stringDOB = dob.getValue().format(dtf);
+					v1.setDob(stringDOB);
 					v1.setAffiliation(affiliation.getText());
 					v1.setRetired(retired.isSelected());
 					v1.setPhone(phone.getText());
@@ -223,10 +226,12 @@ public class Aurora_Food_Pantry extends Application {
 					v1.setState(state.getText());
 					v1.setEmergencyName(emergencyName.getText());
 					v1.setEmergencyPhone(emergencyPhone.getText());
-					v1.setZip(zip.getText());
-					DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+					v1.setZip(zip.getText());;
 					LocalDate localDate = LocalDate.now();
-					v1.setStartDate(localDate);
+					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+					String stringLocalDate = localDate.format(formatter);
+					v1.setStartDate(stringLocalDate);
+					v1.setEndDate("0000-00-00");
 					
 					entries.add(v1);
 					listVolunteers.setItems(entries);
@@ -237,6 +242,8 @@ public class Aurora_Food_Pantry extends Application {
 		cboSearch.setOnAction((event) -> {
 		    if (cboSearch.getValue().equals("Start date"))
 		    	Collections.sort(entries, new SortByStartDate());
+		    else if (cboSearch.getValue().equals("Company"))
+		    	Collections.sort(entries, new SortByCompany());
 		});
 		
 		btnLogin.setOnAction(new EventHandler<ActionEvent>(){
@@ -318,6 +325,19 @@ public class Aurora_Food_Pantry extends Application {
     		if (v1.getStartDate().compareTo(v2.getStartDate()) > 0) return 1;
     		else if (v1.getStartDate().compareTo(v2.getStartDate()) < 0) return -1;
     		else return 0;
+    	}
+    }
+    
+    class SortByCompany implements Comparator<Volunteer> {
+    	public int compare(Volunteer v1, Volunteer v2) {
+    		int val = String.CASE_INSENSITIVE_ORDER.compare(v1.getAffiliation(), v2.getAffiliation());
+    		 if (val == 0) {
+    	            val = v1.getAffiliation().compareTo(v2.getAffiliation());
+    	        }
+    	        return val;
+    		/*if (v1.getAffiliation().compareTo(v2.getAffiliation()) > 0) return 1;
+    		else if (v1.getAffiliation().compareTo(v2.getAffiliation()) < 0) return -1;
+    		else return 0;*/
     	}
     }
 
