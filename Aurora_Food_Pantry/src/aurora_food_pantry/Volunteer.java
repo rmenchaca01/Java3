@@ -12,15 +12,16 @@ public class Volunteer {
 	String firstName, lastName;
 	String dob;
 	String affiliation;
-	boolean retired;
+	String retired;
 	String phone, email, street, city, state,
 	emergencyName, emergencyPhone;
 	String zip;
 	String startDate;
 	String endDate;
+	String searchparam;
 	
 	//Constructor
-	public Volunteer(String firstName, String lastName, String dob, String affiliation, boolean retired, String phone,
+	public Volunteer(String firstName, String lastName, String dob, String affiliation, String retired, String phone,
 			String email, String street, String city, String state, String emergencyName, String emergencyPhone,
 			String zip, String startDate, String endDate) {
 		super();
@@ -47,6 +48,14 @@ public class Volunteer {
 	}
 
 	//Getters and setters
+	public String getSearchParam() {
+		return searchparam;
+	}
+	
+	public void setSearchParam(String object) {
+		this.searchparam = object;
+	}
+	
 	public String getFirstName() {
 		return firstName;
 	}
@@ -79,11 +88,11 @@ public class Volunteer {
 		this.affiliation = affiliation;
 	}
 
-	public boolean isRetired() {
+	public String isRetired() {
 		return retired;
 	}
 
-	public void setRetired(boolean retired) {
+	public void setRetired(String retired) {
 		this.retired = retired;
 	}
 
@@ -174,4 +183,8 @@ public class Volunteer {
 				+ ", city=" + city + ", state=" + state + ", emergencyName=" + emergencyName + ", emergencyPhone="
 				+ emergencyPhone + ", zip=" + zip + ", startDate=" + startDate + ", endDate=" + endDate;
 	}
+
+	
+	
+	
 }

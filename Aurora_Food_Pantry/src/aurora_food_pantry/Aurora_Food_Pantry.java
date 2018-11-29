@@ -1,5 +1,11 @@
 package aurora_food_pantry;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -7,6 +13,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 
+import aurora_food_pantry.Aurora_Food_Pantry.SortByCompany;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -38,15 +45,17 @@ import javafx.stage.Stage;
 * Aurora Food Pantry by Half Empty
 * 
 * @lastModifiedBy	Rafael
-* @modified		11/14/2018 
-* @version		0.4
+* @modified		11/29/2018 
+* @version		0.5
 */
 
 public class Aurora_Food_Pantry extends Application {
 	Scene scene00, scene01, scene02;
-	//ObservableList<String> entries = FXCollections.observableArrayList();    
-	ObservableList<Volunteer> entries = FXCollections.observableArrayList();
-    ListView listVolunteers = new ListView();
+	
+
+	ObservableList<Volunteer> entries = FXCollections.observableArrayList(getDBData());
+    ListView<Volunteer> listVolunteers = new ListView<Volunteer>();
+    ListView<String> listv = new ListView<String>();
 	@Override
 	public void start(Stage primaryStage) {
 		primaryStage.setTitle("Aurora Food Pantry");
@@ -68,16 +77,23 @@ public class Aurora_Food_Pantry extends Application {
 		gridLogin.setAlignment(Pos.CENTER);
 		gridLogin.setHgap(10);
 		gridLogin.setPadding(new Insets(30, 30, 30, 30));
-		gridLogin.setStyle("-fx-font-weight: bold; -fx-border-color:gray;");
+		gridLogin.setStyle("-fx-border-color:gray;");
 		
 		TextField username = new TextField();
 		TextField password = new TextField();
+		Label lblUsername = new Label("Username");
+		Label lblPassword = new Label("Password");
+		Label lblLoginErr = new Label();
+		lblUsername.setStyle("-fx-font-weight: bold;");
+		lblPassword.setStyle("-fx-font-weight: bold;");
+		lblLoginErr.setStyle("-fx-text-fill: red;");
 		
-		gridLogin.addRow(1, new Label("Username"));
+		gridLogin.addRow(1, lblUsername);
 		gridLogin.addRow(2, username);
 		gridLogin.addRow(3, new Text(""));
-		gridLogin.addRow(4, new Label("Password"));
+		gridLogin.addRow(4, lblPassword);
 		gridLogin.addRow(5, password);
+		gridLogin.addRow(6, lblLoginErr);
 		
 		hBox0Top.getChildren().add(lblSceneZeroTitle);
 		hBox0Bottom.getChildren().add(btnLogin);
@@ -87,6 +103,8 @@ public class Aurora_Food_Pantry extends Application {
 		
 		scene00 = new Scene(bPaneLogin, 400, 400);
 		primaryStage.setScene(scene00);
+		
+		listVolunteers.setItems(entries);
 		
 		/*Scene 1 - the Volunteer Database */
 		
@@ -114,21 +132,17 @@ public class Aurora_Food_Pantry extends Application {
 		Button btnAddNewVolunteer = new Button("Add a new volunteer");
 		TextField tfSearch = new TextField();
 		tfSearch.setPromptText("Search");
-		tfSearch.textProperty().addListener(
-	            new ChangeListener() {
-	                public void changed(ObservableValue observable, 
-	                                    Object oldVal, Object newVal) {
-	                    handleSearchByKey2((String)oldVal, (String)newVal);
-	                }
-	            });
+		
 		ComboBox<String> cboSearch = new ComboBox<>();
 		cboSearch.getItems().addAll("Company", "User", "Court ordered", "Start date", "End date");
 		cboSearch.getSelectionModel().selectFirst();
 		Button btnLogout = new Button("Logout");
 		btnLogout.setOnAction(e -> primaryStage.setScene(scene00));
 		
+		Button btnSubmitSearch = new Button("Start Search");
+		
 		hBoxSceneOneRow1.getChildren().addAll(lblSceneOneTitle, lblWelcome, btnLogout);
-		hBoxSceneOne.getChildren().addAll(btnAddNewVolunteer, tfSearch, cboSearch);
+		hBoxSceneOne.getChildren().addAll(btnAddNewVolunteer, tfSearch, cboSearch, btnSubmitSearch);
 		vBoxSceneOne.getChildren().addAll(hBoxSceneOneRow1, hBoxSceneOne);
 		bPaneHome.setTop(vBoxSceneOne);
 		/*Text txtCompany = new Text("Company");
@@ -137,8 +151,17 @@ public class Aurora_Food_Pantry extends Application {
 		Text txtCourt = new Text("Court ordered");
 		Text txtStart = new Text("Start date");
 		Text txtEnd = new Text("End date");*/
+		ArrayList<Volunteer> volun = new ArrayList<Volunteer>(getDBData());
+		btnSubmitSearch.setOnAction(e -> {
 
-        bPaneHome.setCenter(listVolunteers);
+			searchResults(cboSearch.getValue(), tfSearch.getText(), volun);
+			if(tfSearch.getText().equals("")) {
+				bPaneHome.setCenter(listVolunteers);
+			}else
+				bPaneHome.setCenter(listv);
+		});
+
+       bPaneHome.setCenter(listVolunteers);
         
 		scene01 = new Scene(bPaneHome);
 		
@@ -146,12 +169,12 @@ public class Aurora_Food_Pantry extends Application {
 		
 		Label lblSceneTwoTitle = new Label("Volunteer Registration");
 		lblSceneTwoTitle.setFont(Font.font("Courier, New", FontWeight.BOLD,25));
+		lblSceneTwoTitle.setTextFill(Color.web("#739e25"));
 		
 		GridPane gridVolunteerForm = new GridPane();
 		gridVolunteerForm.setAlignment(Pos.CENTER);
 		gridVolunteerForm.setHgap(10);
 		gridVolunteerForm.setPadding(new Insets(30, 30, 30, 30));
-		gridVolunteerForm.setStyle("-fx-font-weight: bold");
 		
 		HBox hBoxVolunteerForm = new HBox(10);
 		
@@ -161,6 +184,20 @@ public class Aurora_Food_Pantry extends Application {
 		bPaneVolunteerForm.setTop(lblSceneTwoTitle);
 		bPaneVolunteerForm.setCenter(gridVolunteerForm);
 		bPaneVolunteerForm.setBottom(hBoxVolunteerForm);
+		
+		Label lblFirstName = new Label("First Name"); lblFirstName.setStyle("-fx-font-weight: bold");
+		Label lblLastName = new Label("Last Name"); lblLastName.setStyle("-fx-font-weight: bold");
+		Label lblDob = new Label("Date of Birth"); lblDob.setStyle("-fx-font-weight: bold");
+		Label lblAffiliation = new Label("Affiliation"); lblAffiliation.setStyle("-fx-font-weight: bold");
+		Label lblRetired = new Label("Retired"); lblRetired.setStyle("-fx-font-weight: bold");
+		Label lblPhone = new Label("Phone"); lblPhone.setStyle("-fx-font-weight: bold");
+		Label lblEmail = new Label("Email"); lblEmail.setStyle("-fx-font-weight: bold");
+		Label lblStreet = new Label("Street"); lblStreet.setStyle("-fx-font-weight: bold");
+		Label lblCity = new Label("City"); lblCity.setStyle("-fx-font-weight: bold");
+		Label lblState = new Label("State"); lblState.setStyle("-fx-font-weight: bold");
+		Label lblZip = new Label("Zip"); lblZip.setStyle("-fx-font-weight: bold");
+		Label lblEmergencyName = new Label("Emergency Contact Name"); lblEmergencyName.setStyle("-fx-font-weight: bold");
+		Label lblEmergencyPhone = new Label("Emergency Phone"); lblEmergencyPhone.setStyle("-fx-font-weight: bold");
 		
 		TextField firstName = new TextField();
 		TextField lastName = new TextField();
@@ -182,25 +219,25 @@ public class Aurora_Food_Pantry extends Application {
 		Button btnSaveVolunteer = new Button("Save");
 		//btnSaveVolunteer.setOnAction(e -> primaryStage.setScene(scene01));
 		
-		gridVolunteerForm.addRow(1, new Label("First Name"), new Label("Last Name"));
+		gridVolunteerForm.addRow(1, lblFirstName, lblLastName);
 		gridVolunteerForm.addRow(2, firstName, lastName);
 		gridVolunteerForm.addRow(3, new Text(""));
-		gridVolunteerForm.addRow(4, new Label("Date of Birth"));
+		gridVolunteerForm.addRow(4, lblDob);
 		gridVolunteerForm.addRow(5, dob);
 		gridVolunteerForm.addRow(6, new Text(""));
-		gridVolunteerForm.addRow(7, new Label("Affiliation"), new Label("Retired"));
+		gridVolunteerForm.addRow(7, lblAffiliation, lblRetired);
 		gridVolunteerForm.addRow(8, affiliation, retired);
 		gridVolunteerForm.addRow(9, new Text(""));
-		gridVolunteerForm.addRow(10, new Label("Phone"));
+		gridVolunteerForm.addRow(10, lblPhone);
 		gridVolunteerForm.addRow(11, phone);
 		gridVolunteerForm.addRow(12, new Text(""));
-		gridVolunteerForm.addRow(13, new Label("Email"));
+		gridVolunteerForm.addRow(13, lblEmail);
 		gridVolunteerForm.addRow(14, email);
 		gridVolunteerForm.addRow(15, new Text(""));
-		gridVolunteerForm.addRow(16, new Label("Street"), new Label("City"), new Label("State"), new Label("Zip"));
+		gridVolunteerForm.addRow(16, lblStreet, lblCity, lblState, lblZip);
 		gridVolunteerForm.addRow(17, street, city, state, zip);
 		gridVolunteerForm.addRow(18, new Text(""));
-		gridVolunteerForm.addRow(19, new Label("Emergency Contact Name"), new Label("Emergency Phone"));
+		gridVolunteerForm.addRow(19, lblEmergencyName, lblEmergencyPhone);
 		gridVolunteerForm.addRow(20, emergencyName, emergencyPhone);
 		hBoxVolunteerForm.getChildren().addAll(btnCancelVolunteer, btnSaveVolunteer);
 		
@@ -218,7 +255,7 @@ public class Aurora_Food_Pantry extends Application {
 					String stringDOB = dob.getValue().format(dtf);
 					v1.setDob(stringDOB);
 					v1.setAffiliation(affiliation.getText());
-					v1.setRetired(retired.isSelected());
+					//v1.setRetired(retired.isSelected());
 					v1.setPhone(phone.getText());
 					v1.setEmail(email.getText());
 					v1.setStreet(street.getText());
@@ -232,24 +269,79 @@ public class Aurora_Food_Pantry extends Application {
 					String stringLocalDate = localDate.format(formatter);
 					v1.setStartDate(stringLocalDate);
 					v1.setEndDate("0000-00-00");
+					v1.setSearchParam("Company");
 					
 					entries.add(v1);
-					listVolunteers.setItems(entries);
+					
+					
+			    	
+			    	try {
+			    		String DBPath = "127.0.0.1/pantry";
+				    	String fName = "";
+				    	String dbInfo = "jdbc:mysql://127.0.0.1/pantry";
+				    	Connection conn = DriverManager.getConnection(dbInfo, "root", "");
+			    		
+				    	
+						Statement st = conn.createStatement();
+						
+						ResultSet rs = st.executeQuery("SELECT COUNT(*) FROM volunteer");
+						
+						rs.next();
+						int count = rs.getInt(1);
+						int finalc = count + 1;
+						
+						
+						String insertInTable = " INSERT INTO volunteer (VolunteerID, Fname, Lname, DOB, Affiliation, Phone, "
+								+ "Email, Street, City, State_, Zip, EmergencyNa, EmergencyPh, Startdate, Enddate)"
+								+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+						
+						PreparedStatement prep = conn.prepareStatement(insertInTable);
+						prep.setString(1, String.valueOf(finalc));
+						prep.setString(2, v1.getFirstName());
+						prep.setString(3, v1.getLastName());
+						prep.setString(4, v1.getDob());
+						prep.setString(5, v1.getAffiliation());
+						prep.setString(6, v1.getPhone());
+						prep.setString(7, v1.getEmail());
+						prep.setString(8, v1.getStreet());
+						prep.setString(9, v1.getCity());
+						prep.setString(10, v1.getState());
+						prep.setString(11, v1.getZip());
+						prep.setString(12, v1.getEmergencyName());
+						prep.setString(13, v1.getEmergencyPhone());
+						prep.setString(14, v1.getStartDate());
+						prep.setString(15, v1.getEndDate());
+						
+						prep.execute();
+						
+						rs.close();
+						conn.close();
+						
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					
+					
+					
+					
+					
 					primaryStage.setScene(scene01);
 			}
 		});
 		
-		cboSearch.setOnAction((event) -> {
-		    if (cboSearch.getValue().equals("Start date"))
-		    	Collections.sort(entries, new SortByStartDate());
-		    else if (cboSearch.getValue().equals("Company"))
-		    	Collections.sort(entries, new SortByCompany());
-		});
 		
 		btnLogin.setOnAction(new EventHandler<ActionEvent>(){
 			@Override
 			public void handle(ActionEvent e){
-				primaryStage.setScene(scene01);
+				//primaryStage.setScene(scene01);
+				if (logValidation(username.getText(), password.getText())) {
+					primaryStage.setScene(scene01);
+					lblWelcome.setText("Welcome, " + username.getText());
+				} else {
+					//primaryStage.setScene(scene00);
+					lblLoginErr.setText("Incorrect username/password");
+				}
 				
 			}
 		});
@@ -257,82 +349,82 @@ public class Aurora_Food_Pantry extends Application {
 		btnAddNewVolunteer.setOnAction(new EventHandler<ActionEvent>(){
 			@Override
 			public void handle(ActionEvent e){
-				primaryStage.setScene(scene02);
-				
+				primaryStage.setScene(scene02);		
 			}
 		});
+		
 	}
 	
-	public void handleSearchByKey(String oldVal, String newVal) {
-        // If the number of characters in the text box is less than last time
-        // it must be because the user pressed delete
-        if ( oldVal != null && (newVal.length() < oldVal.length()) ) {
-            // Restore the lists original set of entries 
-            // and start from the beginning
-            listVolunteers.setItems( entries );
-        }
-         
-        // Change to upper case so that case is not an issue
-        newVal = newVal.toUpperCase();
- 
-        // Filter out the entries that don't contain the entered text
-        ObservableList<String> subentries = FXCollections.observableArrayList();
-        for ( Object entry: listVolunteers.getItems() ) {
-            String entryText = (String)entry;
-            if ( entryText.toUpperCase().contains(newVal) ) {
-                subentries.add(entryText);
-            }
-        }
-        listVolunteers.setItems(subentries);
-    }
- 
-    public void handleSearchByKey2(String oldVal, String newVal) {
-        // If the number of characters in the text box is less than last time
-        // it must be because the user pressed delete
-        if ( oldVal != null && (newVal.length() < oldVal.length()) ) {
-            // Restore the lists original set of entries 
-            // and start from the beginning
-            listVolunteers.setItems( entries );
-        }
-         
-        // Break out all of the parts of the search text 
-        // by splitting on white space
-        String[] parts = newVal.toUpperCase().split(" ");
- 
-        // Filter out the entries that don't contain the entered text
-        ObservableList<String> subentries = FXCollections.observableArrayList();
-        for ( Object entry: listVolunteers.getItems() ) {
-            boolean match = true;
-            String entryText = (String)entry;
-            for ( String part: parts ) {
-                // The entry needs to contain all portions of the
-                // search string *but* in any order
-                if ( ! entryText.toUpperCase().contains(part) ) {
-                    match = false;
-                    break;
-                }
-            }
- 
-            if ( match ) {
-                subentries.add(entryText);
-            }
-        }
-        listVolunteers.setItems(subentries);
-    }
-    
-    class SortByStartDate implements Comparator<Volunteer> {
-    	public int compare(Volunteer v1, Volunteer v2) {
+	public boolean logValidation(String user, String pass) {
+		
+		String DBPath = "127.0.0.1/pantry";
+    	String fName = "";
+    	
+    	DBconnect DB = new DBconnect(DBPath, fName);
+    	
+try {
+    		
+    		String SQL = "SELECT Username, Passwd FROM `employee`";
+    		ResultSet resultSet;
+    		
+    		resultSet = DB.doQuery(SQL);
+    		
+    		while (resultSet.next()) {
+    			if(user.equals(resultSet.getString("Username"))) {
+    				if(pass.equals(resultSet.getString("Passwd"))) {
+    					return true;
+    				}
+    			}
+    		}
+    		
+    				 
+    	} catch (SQLException e) {
+    		e.printStackTrace();
+    	}
+		return false;
+	}
+	
+	public void searchResults(String co, String txt, ArrayList<Volunteer> volun) {
+		ObservableList<String> k = FXCollections.observableArrayList();
+		Collections.sort(volun, new SortByCompany());
+		if (co == "Company") {
+			System.out.println("List of users by company");
+			for (int i = 0; i < volun.size(); i++) {
+				if(volun.get(i).getAffiliation().equalsIgnoreCase(txt)) {
+					k.add(volun.get(i).getFirstName() + " " + volun.get(i).getAffiliation());
+				}
+			}
+		} else if (co == "User") {
+			System.out.println("List of users by name entered");
+			for (int i = 0; i < volun.size(); i++) {
+				if (volun.get(i).getFirstName().equalsIgnoreCase(txt)) {	
+					k.add(volun.get(i).getFirstName());
+				}
+			}
+		} else if (co == "Court ordered") {
+			System.out.println("List of users who are court ordered");
+		}
+		listv.setItems(k);
+	}
+
+   
+    public void SortByStartDate() {
+    	/*public int compare(Volunteer v1, Volunteer v2) {
     		if (v1.getStartDate().compareTo(v2.getStartDate()) > 0) return 1;
     		else if (v1.getStartDate().compareTo(v2.getStartDate()) < 0) return -1;
     		else return 0;
     	}
+    	*/
+    	
+    	
+    	
     }
     
     class SortByCompany implements Comparator<Volunteer> {
     	public int compare(Volunteer v1, Volunteer v2) {
     		int val = String.CASE_INSENSITIVE_ORDER.compare(v1.getAffiliation(), v2.getAffiliation());
     		 if (val == 0) {
-    	            val = v1.getAffiliation().compareTo(v2.getAffiliation());
+    	            val = v1.getFirstName().compareTo(v2.getFirstName());
     	        }
     	        return val;
     		/*if (v1.getAffiliation().compareTo(v2.getAffiliation()) > 0) return 1;
@@ -340,8 +432,56 @@ public class Aurora_Food_Pantry extends Application {
     		else return 0;*/
     	}
     }
+    
+    public static ArrayList<Volunteer> getDBData() {
+    	ArrayList<Volunteer> vol = new ArrayList<>();
+    	
+    	String DBPath = "127.0.0.1/pantry";
+    	String fName = "";
+    	
+    	DBconnect DB = new DBconnect(DBPath, fName);
+    	
+    	try {
+    		
+    		String SQL = "SELECT Affiliation, City, DOB, Email, EmergencyNa, EmergencyPH, "
+    				+ "Enddate, Fname, Lname, Phone, Startdate, State_, Street, Zip FROM `volunteer` ";
+    		ResultSet resultSet;
+    		
+    		resultSet = DB.doQuery(SQL);
+    		
+    		while(resultSet.next()) {
+    			Volunteer volunteer = new Volunteer();
+    			volunteer.setAffiliation(resultSet.getString("Affiliation"));
+    			volunteer.setCity(resultSet.getString("City"));
+    			volunteer.setDob(resultSet.getString("DOB"));
+    			volunteer.setEmail(resultSet.getString("Email"));
+    			volunteer.setEmergencyName(resultSet.getString("EmergencyNa"));
+    			volunteer.setEmergencyPhone(resultSet.getString("EmergencyPH"));
+    			volunteer.setEndDate(resultSet.getString("Enddate"));
+    			volunteer.setFirstName(resultSet.getString("Fname"));
+    			volunteer.setLastName(resultSet.getString("Lname"));
+    			volunteer.setPhone(resultSet.getString("Phone"));
+    			volunteer.setStartDate(resultSet.getString("Startdate"));
+    			volunteer.setState(resultSet.getString("State_"));
+    			volunteer.setStreet(resultSet.getString("Street"));
+    			volunteer.setZip(resultSet.getString("Zip"));
+    			
+    			vol.add(volunteer);
+    		}
 
-	public static void main(String[] args) {
+    				 
+    	} catch (SQLException e) {
+    		e.printStackTrace();
+    	}
+    	
+    	return (vol);
+    }
+    
+
+	public static void main(String[] args) throws SQLException {
+		
 		launch(args);
+		
+		
 	}
 }
