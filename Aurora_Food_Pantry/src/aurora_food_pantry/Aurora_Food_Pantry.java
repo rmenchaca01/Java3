@@ -60,7 +60,6 @@ public class Aurora_Food_Pantry extends Application {
 	public void start(Stage primaryStage) {
 		primaryStage.setTitle("Aurora Food Pantry");
 		BorderPane bPaneLogin = new BorderPane();
-		//bPaneLogin.setPadding(new Insets(30, 30, 30, 30));
 		HBox hBox0Top = new HBox();
 		hBox0Top.setPadding(new Insets(10, 10, 10, 10));
 		Label lblSceneZeroTitle = new Label("Aurora Food Pantry");
@@ -70,8 +69,6 @@ public class Aurora_Food_Pantry extends Application {
 		hBox0Bottom.setPadding(new Insets(10, 10, 10, 10));
 		hBox0Bottom.setStyle("-fx-background-color: #372001");
 		Button btnLogin = new Button("Login");
-		//btnLogin.setStyle("-fx-background-color: #739e25");
-		//btnLogin.setTextFill(Color.web("#FFF"));
 		
 		GridPane gridLogin = new GridPane();
 		gridLogin.setAlignment(Pos.CENTER);
@@ -109,7 +106,6 @@ public class Aurora_Food_Pantry extends Application {
 		/*Scene 1 - the Volunteer Database */
 		
 		BorderPane bPaneHome = new BorderPane();
-		//bPaneHome.setPadding(new Insets(30, 30, 30, 30));
 		bPaneHome.setStyle("-fx-background-color: #739e25");
 		
 		VBox vBoxSceneOne = new VBox();
@@ -145,12 +141,7 @@ public class Aurora_Food_Pantry extends Application {
 		hBoxSceneOne.getChildren().addAll(btnAddNewVolunteer, tfSearch, cboSearch, btnSubmitSearch);
 		vBoxSceneOne.getChildren().addAll(hBoxSceneOneRow1, hBoxSceneOne);
 		bPaneHome.setTop(vBoxSceneOne);
-		/*Text txtCompany = new Text("Company");
-		Text txtVolun = new Text("Volunteers");
-		Text txtHours = new Text("Hours");
-		Text txtCourt = new Text("Court ordered");
-		Text txtStart = new Text("Start date");
-		Text txtEnd = new Text("End date");*/
+
 		ArrayList<Volunteer> volun = new ArrayList<Volunteer>(getDBData());
 		btnSubmitSearch.setOnAction(e -> {
 
@@ -217,7 +208,6 @@ public class Aurora_Food_Pantry extends Application {
 		Button btnCancelVolunteer = new Button("Cancel");
 		btnCancelVolunteer.setOnAction(e -> primaryStage.setScene(scene01));
 		Button btnSaveVolunteer = new Button("Save");
-		//btnSaveVolunteer.setOnAction(e -> primaryStage.setScene(scene01));
 		
 		gridVolunteerForm.addRow(1, lblFirstName, lblLastName);
 		gridVolunteerForm.addRow(2, firstName, lastName);
@@ -427,9 +417,6 @@ try {
     	            val = v1.getFirstName().compareTo(v2.getFirstName());
     	        }
     	        return val;
-    		/*if (v1.getAffiliation().compareTo(v2.getAffiliation()) > 0) return 1;
-    		else if (v1.getAffiliation().compareTo(v2.getAffiliation()) < 0) return -1;
-    		else return 0;*/
     	}
     }
     
@@ -476,12 +463,8 @@ try {
     	
     	return (vol);
     }
-    
 
 	public static void main(String[] args) throws SQLException {
-		
 		launch(args);
-		
-		
 	}
 }
