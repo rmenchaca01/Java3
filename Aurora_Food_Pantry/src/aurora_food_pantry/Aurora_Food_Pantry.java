@@ -46,7 +46,7 @@ import javafx.stage.Stage;
 * 
 * @lastModifiedBy	Rafael
 * @modified		11/29/2018 
-* @version		0.5
+* @version		0.51
 */
 
 public class Aurora_Food_Pantry extends Application {
@@ -430,7 +430,7 @@ try {
     	
     	try {
     		
-    		String SQL = "SELECT Affiliation, City, DOB, Email, EmergencyNa, EmergencyPH, "
+    		String SQL = "SELECT VolunteerID, Affiliation, City, DOB, Email, EmergencyNa, EmergencyPH, "
     				+ "Enddate, Fname, Lname, Phone, Startdate, State_, Street, Zip FROM `volunteer` ";
     		ResultSet resultSet;
     		
@@ -438,6 +438,7 @@ try {
     		
     		while(resultSet.next()) {
     			Volunteer volunteer = new Volunteer();
+    			volunteer.setId(resultSet.getInt("VolunteerID"));
     			volunteer.setAffiliation(resultSet.getString("Affiliation"));
     			volunteer.setCity(resultSet.getString("City"));
     			volunteer.setDob(resultSet.getString("DOB"));

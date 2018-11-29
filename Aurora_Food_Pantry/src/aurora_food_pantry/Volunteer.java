@@ -9,6 +9,7 @@ import javafx.scene.control.TextField;
 
 public class Volunteer {
 	//Instance variables
+	int id;
 	String firstName, lastName;
 	String dob;
 	String affiliation;
@@ -21,10 +22,11 @@ public class Volunteer {
 	String searchparam;
 	
 	//Constructor
-	public Volunteer(String firstName, String lastName, String dob, String affiliation, String retired, String phone,
+	public Volunteer(int id, String firstName, String lastName, String dob, String affiliation, String retired, String phone,
 			String email, String street, String city, String state, String emergencyName, String emergencyPhone,
 			String zip, String startDate, String endDate) {
 		super();
+		this.id = id;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.dob = dob;
@@ -48,12 +50,21 @@ public class Volunteer {
 	}
 
 	//Getters and setters
+	
 	public String getSearchParam() {
 		return searchparam;
 	}
 	
 	public void setSearchParam(String object) {
 		this.searchparam = object;
+	}
+	
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 	
 	public String getFirstName() {
@@ -178,7 +189,7 @@ public class Volunteer {
 
 	//ToString
 	public String toString() {
-		return "firstName=" + firstName + ", lastName=" + lastName + ", dob=" + dob + ", affiliation="
+		return "id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", dob=" + dob + ", affiliation="
 				+ affiliation + ", retired=" + retired + ", phone=" + phone + ", email=" + email + ", street=" + street
 				+ ", city=" + city + ", state=" + state + ", emergencyName=" + emergencyName + ", emergencyPhone="
 				+ emergencyPhone + ", zip=" + zip + ", startDate=" + startDate + ", endDate=" + endDate;
